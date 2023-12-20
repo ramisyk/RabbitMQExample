@@ -18,13 +18,18 @@ using IModel channel = connection.CreateModel();
 // 3. Create Queue
 // exclusive -> if it equals true (as default), queue is created only this channel and it will be deleted before reach consumer
 // queue should be same as publisher
-channel.QueueDeclare(queue: "example-queue", exclusive: false);
+channel.QueueDeclare(queue: "example-queue", exclusive: false, durable: true);
 
 // 4. Read Message From Queue
 // Message is approved as byte by RabbitMQ 
 
 EventingBasicConsumer consumer = new EventingBasicConsumer(channel);
+
 channel.BasicConsume(queue: "example-queue", autoAck: false, consumer);
+
+// Configure for Fair Dispatching
+channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
 consumer.Received += (sender, e) =>
 {
     // Process the messages
